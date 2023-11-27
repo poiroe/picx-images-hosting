@@ -1,4 +1,4 @@
-name: Trigger Update on poiroe.github.io
+name: 触发 poiroe.github.io 的更新
 
 on:
   push:
@@ -10,38 +10,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: 检出仓库
         uses: actions/checkout@v4.1.1
 
-      - name: Check Last Trigger Time
+      - name: 检查上次触发时间
         run: |
           DELAY_FILE_PATH="delay"
-          # Check if the delay file exists
+          # 检查延迟文件是否存在
           if [ -f "$DELAY_FILE_PATH" ]; then
-            # Get the creation time of the delay file
+            # 获取延迟文件的创建时间
             CREATION_TIME=$(stat -c %Y "$DELAY_FILE_PATH")
-            # Get the current time
+            # 获取当前时间
             CURRENT_TIME=$(date +%s)
-            # Calculate the time difference
+            # 计算时间差
             TIME_DIFF=$((CURRENT_TIME - CREATION_TIME))
             
-            # Check if the time difference is greater than 1 minute
+            # 检查时间差是否小于1分钟
             if [ "$TIME_DIFF" -lt 60 ]; then
-              echo "Time interval is less than 1 minute. Skipping the workflow."
+              echo "时间间隔小于1分钟。跳过工作流程。"
               exit 0
             fi
           fi
 
-      - name: Trigger Update
+      - name: 触发更新
         run: |
           curl -XPOST \
             -H "Authorization: token ${{ secrets.PAT }}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
             https://api.github.com/repos/poiroe/poiroe.github.io/dispatches \
             -d '{"event_type": "trigger-update"}'
+        # 记录一条消息，指示触发已发送
+        echo "触发更新已发送。"
 
-      - name: Update Delay File
+      - name: 更新延迟文件
         run: |
           DELAY_FILE_PATH="delay"
-          # Update the content of the delay file with the current time
+          # 使用当前时间更新延迟文件的内容
           date +'%Y-%m-%dT%H:%M:%SZ' > "$DELAY_FILE_PATH"
+        # 记录一条消息，指示延迟文件已更新
+        echo "延迟文件已更新。"
