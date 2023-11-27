@@ -15,7 +15,18 @@ jobs:
         continue-on-error: true
         name: Check Latest Commit
         if: ${{ github.event_name == 'schedule' }}
-        run: test -z $(git rev-list --after="24 hours" ${{ github.sha }}) && echo "::set-output name=should_run::false"
+        run: |
+          echo "Current SHA: ${{ github.sha }}"
+          echo "Current time: $(date -u)"
+          echo "Commits in the last 24 hours:"
+          git log --since="24 hours" --pretty=oneline
+          if test -z $(git rev-list --after="24 hours" ${{ github.sha }}); then
+            echo "No commits in the last 24 hours. Setting should_run to false."
+            echo "::set-output name=should_run::false"
+          else
+            echo "Commits found in the last 24 hours. should_run remains unchanged."
+          fi
+
 
   trigger_update:
     needs: check_date
