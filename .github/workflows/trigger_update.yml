@@ -2,7 +2,7 @@ name: My Workflow1
 
 on:
   schedule:
-    - cron: '*/3 * * * *'  # Run daily
+    - cron: '*/5 * * * *'  # Run daily
 
 jobs:
   check_date:
