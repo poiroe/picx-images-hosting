@@ -15,7 +15,7 @@ jobs:
 
       - name: Check Last Trigger Time
         run: |
-          DELAY_FILE_PATH="dely"
+          DELAY_FILE_PATH="delay"
           # Check if the delay file exists
           if [ -f "$DELAY_FILE_PATH" ]; then
             # Get the creation time of the delay file
@@ -42,6 +42,6 @@ jobs:
 
       - name: Update Delay File
         run: |
-          DELAY_FILE_PATH="dely"
+          DELAY_FILE_PATH="delay"
           # Update the content of the delay file with the current time
           date +'%Y-%m-%dT%H:%M:%SZ' > "$DELAY_FILE_PATH"
