@@ -19,7 +19,7 @@ jobs:
       - name: Trigger Update
         run: |
           curl -XPOST \
-            -H "Authorization: token ${{ SecretsPAT }}" \
+            -H "Authorization: token ${{ secrets.PAT }}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
             https://api.github.com/repos/poiroe/poiroe.github.io/dispatches \
             -d '{"event_type": "trigger-update"}'
