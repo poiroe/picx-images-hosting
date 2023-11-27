@@ -1,44 +1,35 @@
-name: My Workflow1
+name: trigger_update
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Run daily
+    - cron: '0 */2 * * *'  # 每隔两小时触发一次
 
 jobs:
   check_date:
     runs-on: ubuntu-latest
     steps:
-      - id: should_run
-        continue-on-error: true
-        name: Check Latest Commit
-        if: ${{ github.event_name == 'schedule' }}
+      - name: Checkout Repository
+        uses: actions/checkout@v4.1.1
+
+      - name: Check Latest Commit
+        id: should_run
         run: |
-          echo "Current SHA: ${{ github.sha }}"
-          echo "Current time: $(date -u)"
-          echo "Commits in the last 24 hours:"
-          git log --since="24 hours" --pretty=oneline
-          if test -z $(git rev-list --after="24 hours" ${{ github.sha }}); then
-            echo "No commits in the last 24 hours. Setting should_run to false."
-            echo "::set-output name=should_run::false"
-          else
-            echo "Commits found in the last 24 hours. should_run remains unchanged."
-          fi
+          test -z $(git rev-list --after="24 hours" ${{ github.sha }}) && echo "::set-output name=should_run::false" || echo "::set-output name=should_run::true"
 
   trigger_update:
     needs: check_date
-    if: ${{ needs.check_date.outputs.should_run != 'false' }}
     runs-on: ubuntu-latest
-    name: Trigger Update on poiroe.github.io
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4.1.1
+
       - name: Set up Python
         uses: actions/setup-python@v4.7.1
         with:
           python-version: 3.8
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4.1.1
-
       - name: Trigger Update
+        if: ${{ needs.check_date.outputs.should_run == 'true' }}
         run: |
           curl -XPOST \
             -H "Authorization: token ${{ secrets.PAT }}" \
