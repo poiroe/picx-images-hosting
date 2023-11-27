@@ -1,4 +1,4 @@
-name: 触发 poiroe.github.io 的更新
+name: Trigger Update on poiroe.github.io
 
 on:
   push:
@@ -10,42 +10,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 检出仓库
+      - name: Checkout Repository
         uses: actions/checkout@v4.1.1
 
-      - name: 检查上次触发时间
+      - name: Check Delay File
         run: |
-          DELAY_FILE_PATH="delay"
-          # 检查延迟文件是否存在
-          if [ -f "$DELAY_FILE_PATH" ]; then
-            # 获取延迟文件的创建时间
-            CREATION_TIME=$(stat -c %Y "$DELAY_FILE_PATH")
-            # 获取当前时间
-            CURRENT_TIME=$(date +%s)
-            # 计算时间差
-            TIME_DIFF=$((CURRENT_TIME - CREATION_TIME))
+          delay_file="delay"
+          if [ -f "$delay_file" ]; then
+            last_modified=$(stat -c %Y "$delay_file")
+            current_time=$(date +%s)
+            time_diff=$((current_time - last_modified))
             
-            # 检查时间差是否小于1分钟
-            if [ "$TIME_DIFF" -lt 60 ]; then
-              echo "时间间隔小于1分钟。跳过工作流程。"
+            if [ "$time_diff" -lt 60 ]; then
+              echo "Delay time is less than 1 minute. Exiting GitHub Actions."
               exit 0
+            else
+              echo "Delay time is greater than or equal to 1 minute. Updating delay file and waiting for 1 minute."
+              echo "update" > "$delay_file"
+              sleep 60
             fi
+          else
+            echo "Delay file not found. Creating delay file."
+            echo "update" > "$delay_file"
+            sleep 60
           fi
 
-     - name: 更新延迟文件
-  run: |
-    DELAY_FILE_PATH="delay"
-    # 使用当前时间更新延迟文件的内容
-    date +'%Y-%m-%dT%H:%M:%SZ' > "$DELAY_FILE_PATH" || echo "Failed to update delay file."
-    # 记录一条消息，指示延迟文件已更新
-
-
-      - name: 触发更新
+      - name: Trigger Update
         run: |
-          sleep 60
           curl -XPOST \
             -H "Authorization: token ${{ secrets.PAT }}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
             https://api.github.com/repos/poiroe/poiroe.github.io/dispatches \
             -d '{"event_type": "trigger-update"}'
-        # 记录一条消息，指示触发已发送
