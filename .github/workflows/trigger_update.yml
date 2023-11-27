@@ -1,4 +1,4 @@
-name: Trigger Update on poiroe.github.io
+name: Trigger Update on picx-images-hosting
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
 
       - name: Check Delay File
         run: |
-          delay_file="delay"
+          delay_file="${GITHUB_WORKSPACE}/delay"
           if [ -f "$delay_file" ]; then
             last_modified=$(stat -c %Y "$delay_file")
             current_time=$(date +%s)
@@ -40,5 +40,5 @@ jobs:
           curl -XPOST \
             -H "Authorization: token ${{ secrets.PAT }}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
-            https://api.github.com/repos/poiroe/poiroe.github.io/dispatches \
+            https://api.github.com/repos/picx-images-hosting/picx-images-hosting/dispatches \
             -d '{"event_type": "trigger-update"}'
