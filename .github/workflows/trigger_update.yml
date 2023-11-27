@@ -1,6 +1,6 @@
 name: My Workflow
 
-
+on:
   schedule:
     - cron: '0 0 * * *'  # Run daily
 
@@ -23,7 +23,6 @@ jobs:
           else
             echo "Commits found in the last 24 hours. should_run remains unchanged."
           fi
-
 
   trigger_update:
     needs: check_date
