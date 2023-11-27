@@ -48,4 +48,3 @@ jobs:
             https://api.github.com/repos/poiroe/poiroe.github.io/dispatches \
             -d '{"event_type": "trigger-update"}'
         # 记录一条消息，指示触发已发送
-        echo "触发更新已发送。"
