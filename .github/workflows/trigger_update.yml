@@ -11,11 +11,11 @@ jobs:
 
     steps:
       - name: Trigger Update on poiroe.github.io
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4.7.1
         with:
           python-version: 3.8
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.1.1
       - name: Trigger Update
         run: |
           curl -XPOST \
