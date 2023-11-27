@@ -10,15 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Wait for 1 minute
-        run: sleep 60
-
-      - name: Trigger Update on poiroe.github.io
-        uses: actions/setup-python@v4.7.1
-        with:
-          python-version: 3.8
       - name: Checkout Repository
         uses: actions/checkout@v4.1.1
+
+      - name: Check Last Trigger Time
+        run: |
+          DELAY_FILE_PATH="dely"
+          # Check if the delay file exists
+          if [ -f "$DELAY_FILE_PATH" ]; then
+            # Get the creation time of the delay file
+            CREATION_TIME=$(stat -c %Y "$DELAY_FILE_PATH")
+            # Get the current time
+            CURRENT_TIME=$(date +%s)
+            # Calculate the time difference
+            TIME_DIFF=$((CURRENT_TIME - CREATION_TIME))
+            
+            # Check if the time difference is greater than 1 minute
+            if [ "$TIME_DIFF" -lt 60 ]; then
+              echo "Time interval is less than 1 minute. Skipping the workflow."
+              exit 0
+            fi
+          fi
+
       - name: Trigger Update
         run: |
           curl -XPOST \
@@ -26,3 +39,9 @@ jobs:
             -H "Accept: application/vnd.github.everest-preview+json" \
             https://api.github.com/repos/poiroe/poiroe.github.io/dispatches \
             -d '{"event_type": "trigger-update"}'
+
+      - name: Update Delay File
+        run: |
+          DELAY_FILE_PATH="dely"
+          # Update the content of the delay file with the current time
+          date +'%Y-%m-%dT%H:%M:%SZ' > "$DELAY_FILE_PATH"
