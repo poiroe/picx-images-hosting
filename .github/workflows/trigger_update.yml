@@ -38,7 +38,6 @@ jobs:
           # 使用当前时间更新延迟文件的内容
           date +'%Y-%m-%dT%H:%M:%SZ' > "$DELAY_FILE_PATH"
         # 记录一条消息，指示延迟文件已更新
-        echo "延迟文件已更新。"
 
       - name: 触发更新
         run: |
