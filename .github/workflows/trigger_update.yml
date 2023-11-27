@@ -32,12 +32,13 @@ jobs:
             fi
           fi
 
-      - name: 更新延迟文件
-        run: |
-          DELAY_FILE_PATH="delay"
-          # 使用当前时间更新延迟文件的内容
-          date +'%Y-%m-%dT%H:%M:%SZ' > "$DELAY_FILE_PATH"
-        # 记录一条消息，指示延迟文件已更新
+     - name: 更新延迟文件
+  run: |
+    DELAY_FILE_PATH="delay"
+    # 使用当前时间更新延迟文件的内容
+    date +'%Y-%m-%dT%H:%M:%SZ' > "$DELAY_FILE_PATH" || echo "Failed to update delay file."
+    # 记录一条消息，指示延迟文件已更新
+
 
       - name: 触发更新
         run: |
