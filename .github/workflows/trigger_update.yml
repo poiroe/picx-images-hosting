@@ -2,8 +2,8 @@ name: My Workflow1
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Run daily
-workflow_dispatch:
+    - cron: '*/3 * * * *'  # Run daily
+
 jobs:
   check_date:
     runs-on: ubuntu-latest
