@@ -2,7 +2,8 @@ name: trigger_update
 
 on:
   schedule:
-    - cron: '0 */2 * * *'  # 每隔两小时触发一次
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
 
 jobs:
   check_date:
