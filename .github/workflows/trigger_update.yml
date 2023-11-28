@@ -1,3 +1,9 @@
+name: trigger_update
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'  # 每隔两小时触发一次
+
 jobs:
   check_date:
     runs-on: ubuntu-latest
