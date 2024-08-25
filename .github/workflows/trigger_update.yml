@@ -12,7 +12,7 @@ jobs:
       should_run: ${{ steps.check_date.outputs.should_run }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
 
       - name: Check Latest Commit
         id: check_date
@@ -24,13 +24,12 @@ jobs:
             echo "should_run=true" >> $GITHUB_ENV
             echo "Latest commit is within the last 24 hours."
           fi
-
   trigger_update:
     needs: check_date
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
 
       - name: Set up Python
         uses: actions/setup-python@v4.7.1
