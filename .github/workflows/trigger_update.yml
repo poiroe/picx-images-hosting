@@ -19,9 +19,11 @@ jobs:
         run: |
           if test -z $(git rev-list --after="24 hours" ${{ github.sha }}); then
             echo "should_run=false" >> $GITHUB_ENV
+            echo "::set-output name=should_run::false"
             echo "Latest commit is older than 24 hours."
           else
             echo "should_run=true" >> $GITHUB_ENV
+            echo "::set-output name=should_run::true"
             echo "Latest commit is within the last 24 hours."
           fi
           
