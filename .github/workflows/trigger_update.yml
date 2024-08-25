@@ -40,8 +40,9 @@ jobs:
         if: ${{ needs.check_date.outputs.should_run == 'true' }}
         run: |
           echo "Triggering update because should_run is true."
-          curl -XPOST \
+          response=$(curl -X POST \
             -H "Authorization: token ${{ secrets.PAT }}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
             https://api.github.com/repos/poiroe/poiroe.github.io/dispatches \
-            -d '{"event_type": "trigger-update"}'
+            -d '{"event_type": "trigger-update"}')
+          echo "Response: $response"
