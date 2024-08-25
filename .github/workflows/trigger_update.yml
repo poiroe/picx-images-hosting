@@ -9,41 +9,39 @@ jobs:
   check_date:
     runs-on: ubuntu-latest
     outputs:
-      should_run:
-        description: 'Indicates whether the update should be triggered'
-        value: ${{ steps.check_date.outputs.should_run }}
+      should_run: ${{ steps.check_date.outputs.should_run }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
 
       - name: Check Latest Commit
         id: check_date
         run: |
-          if test -z "$(git rev-list --after="24 hours" ${{ github.sha }}"; then
+          if test -z $(git rev-list --after="24 hours" ${{ github.sha }}); then
             echo "should_run=false" >> $GITHUB_ENV
+            echo "Latest commit is older than 24 hours."
           else
             echo "should_run=true" >> $GITHUB_ENV
+            echo "Latest commit is within the last 24 hours."
           fi
-          
   trigger_update:
     needs: check_date
     runs-on: ubuntu-latest
-    if: ${{ needs.check_date.outputs.should_run == 'true' }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v4.7.1
         with:
           python-version: 3.8
 
       - name: Trigger Update
+        if: ${{ needs.check_date.outputs.should_run == 'true' }}
         run: |
           echo "Triggering update because should_run is true."
-          response=$(curl -X POST \
+          curl -XPOST \
             -H "Authorization: token ${{ secrets.PAT }}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
             https://api.github.com/repos/poiroe/poiroe.github.io/dispatches \
-            -d '{"event_type": "trigger-update"}')
-          echo "Response: $response"
+            -d '{"event_type": "trigger-update"}'
