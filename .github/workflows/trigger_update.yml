@@ -1,33 +1,51 @@
-name: Update File List
+name: trigger_update
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 时间 0:00 (北京时间早上 8:00) 自动运行
-  repository_dispatch:
-    types:
-      - trigger-update
-  workflow_dispatch: 
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
-  update-file-list:
+  check_date:
     runs-on: ubuntu-latest
-
+    outputs:
+      should_run: ${{ steps.check_date.outputs.should_run }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
+
+      - name: Check Latest Commit
+        id: check_date
+        run: |
+          if test -z $(git rev-list --after="24 hours" ${{ github.sha }}); then
+            echo "should_run=false" >> $GITHUB_ENV
+            echo "::set-output name=should_run::false"
+            echo "Latest commit is older than 24 hours."
+          else
+            echo "should_run=true" >> $GITHUB_ENV
+            echo "::set-output name=should_run::true"
+            echo "Latest commit is within the last 24 hours."
+          fi
+          
+  trigger_update:
+    needs: check_date
+    runs-on: ubuntu-latest
+    if: ${{ needs.check_date.outputs.should_run == 'true' }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4.7.1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
-      - name: Install Dependencies
+      - name: Trigger Update
         run: |
-          python -m pip install --upgrade pip
-          pip install requests
-
-      - name: Run Script
-        env:
-          MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-        run: |
-          python update_file_list.py
+          echo "Triggering update because should_run is true."
+          response=$(curl -X POST \
+            -H "Authorization: token ${{ secrets.PAT }}" \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            https://api.github.com/repos/poiroe/poiroe.github.io/dispatches \
+            -d '{"event_type": "trigger-update"}')
+          echo "Response: $response"
